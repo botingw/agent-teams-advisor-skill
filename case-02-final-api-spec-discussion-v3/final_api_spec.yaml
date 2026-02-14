@@ -1,0 +1,189 @@
+openapi: "3.0.3"
+info:
+  title: Mobile Order Dashboard API
+  description: >
+    BFF endpoint for the mobile order dashboard. Uses cache-assisted fan-out
+    to assemble order data with inline product details in a single response.
+    No cross-shard joins; product data is fetched via batch ID lookup and
+    embedded at the application layer.
+  version: "1.0.0"
+
+servers:
+  - url: http://localhost:8080
+    description: Mock server
+
+paths:
+  /dashboard/orders:
+    get:
+      summary: Get paginated order list with inline product details
+      description: >
+        Returns a paginated list of orders for the authenticated user,
+        with product name and thumbnail URL embedded in each line item.
+        Designed for single-request above-the-fold rendering on mobile.
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
+          description: Number of orders to return per page.
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          description: Number of orders to skip for pagination.
+      responses:
+        "200":
+          description: Paginated order list with inline product details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderListResponse"
+              example:
+                orders:
+                  - id: "order_abc123"
+                    status: "delivered"
+                    total_cents: 4500
+                    currency: "USD"
+                    created_at: "2025-01-15T10:30:00Z"
+                    items:
+                      - product_id: "prod_001"
+                        product_name: "Wireless Earbuds"
+                        thumbnail_url: "https://cdn.example.com/thumbs/prod_001_64x64.jpg"
+                        quantity: 1
+                        unit_price_cents: 2500
+                      - product_id: "prod_002"
+                        product_name: "Phone Case"
+                        thumbnail_url: "https://cdn.example.com/thumbs/prod_002_64x64.jpg"
+                        quantity: 2
+                        unit_price_cents: 1000
+                  - id: "order_def456"
+                    status: "shipped"
+                    total_cents: 8999
+                    currency: "USD"
+                    created_at: "2025-01-10T14:22:00Z"
+                    items:
+                      - product_id: "prod_003"
+                        product_name: "USB-C Hub"
+                        thumbnail_url: "https://cdn.example.com/thumbs/prod_003_64x64.jpg"
+                        quantity: 1
+                        unit_price_cents: 8999
+                pagination:
+                  limit: 10
+                  offset: 0
+                  total: 42
+
+components:
+  schemas:
+    OrderListResponse:
+      type: object
+      required:
+        - orders
+        - pagination
+      properties:
+        orders:
+          type: array
+          items:
+            $ref: "#/components/schemas/Order"
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+
+    Order:
+      type: object
+      required:
+        - id
+        - status
+        - total_cents
+        - currency
+        - created_at
+        - items
+      properties:
+        id:
+          type: string
+          description: Unique order identifier.
+          example: "order_abc123"
+        status:
+          type: string
+          enum:
+            - pending
+            - confirmed
+            - shipped
+            - delivered
+            - cancelled
+          description: Current order status.
+          example: "delivered"
+        total_cents:
+          type: integer
+          description: Order total in smallest currency unit (cents).
+          example: 4500
+        currency:
+          type: string
+          description: ISO 4217 currency code.
+          example: "USD"
+        created_at:
+          type: string
+          format: date-time
+          description: Order creation timestamp (ISO 8601).
+          example: "2025-01-15T10:30:00Z"
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderItem"
+
+    OrderItem:
+      type: object
+      required:
+        - product_id
+        - product_name
+        - thumbnail_url
+        - quantity
+        - unit_price_cents
+      properties:
+        product_id:
+          type: string
+          description: Product identifier.
+          example: "prod_001"
+        product_name:
+          type: string
+          description: Display name of the product.
+          example: "Wireless Earbuds"
+        thumbnail_url:
+          type: string
+          format: uri
+          description: CDN URL for pre-resized 64x64 product thumbnail.
+          example: "https://cdn.example.com/thumbs/prod_001_64x64.jpg"
+        quantity:
+          type: integer
+          minimum: 1
+          description: Quantity ordered.
+          example: 1
+        unit_price_cents:
+          type: integer
+          description: Unit price in smallest currency unit (cents).
+          example: 2500
+
+    Pagination:
+      type: object
+      required:
+        - limit
+        - offset
+        - total
+      properties:
+        limit:
+          type: integer
+          description: Number of orders per page.
+          example: 10
+        offset:
+          type: integer
+          description: Number of orders skipped.
+          example: 0
+        total:
+          type: integer
+          description: Total number of orders for the user.
+          example: 42

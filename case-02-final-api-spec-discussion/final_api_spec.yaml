@@ -1,0 +1,197 @@
+openapi: "3.0.3"
+info:
+  title: Dashboard Orders API
+  description: >
+    BFF endpoint serving pre-aggregated order data for the dashboard.
+    The BFF fans out internally: fetches order IDs from the orders DB
+    (indexed query, no joins), then batch-fetches product details from
+    the sharded products service. Response includes embedded product
+    info so the frontend needs only 1 HTTP request for above-the-fold
+    order cards.
+  version: "1.0.0"
+
+servers:
+  - url: http://localhost:8080
+    description: Mock server
+
+paths:
+  /dashboard/orders:
+    get:
+      operationId: getDashboardOrders
+      summary: List paginated orders with embedded product previews
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number (1-indexed)
+        - name: page_size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 20
+          description: Number of orders per page (max 50)
+      responses:
+        "200":
+          description: Paginated list of orders with embedded product previews
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardOrdersResponse"
+              example:
+                orders:
+                  - order_id: "ord_abc123"
+                    status: "shipped"
+                    total_cents: 4999
+                    currency: "USD"
+                    created_at: "2025-01-15T10:30:00Z"
+                    total_items_count: 5
+                    items:
+                      - product_id: "prod_xyz"
+                        product_name: "Wireless Headphones"
+                        product_image_url: "https://cdn.example.com/products/xyz/thumb.webp"
+                        unit_price_cents: 2499
+                        quantity: 2
+                      - product_id: "prod_abc"
+                        product_name: "USB-C Cable"
+                        product_image_url: "https://cdn.example.com/products/abc/thumb.webp"
+                        unit_price_cents: 999
+                        quantity: 1
+                pagination:
+                  page: 1
+                  page_size: 20
+                  total_orders: 1250
+                  total_pages: 63
+
+components:
+  schemas:
+    DashboardOrdersResponse:
+      type: object
+      required:
+        - orders
+        - pagination
+      properties:
+        orders:
+          type: array
+          items:
+            $ref: "#/components/schemas/Order"
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+
+    Order:
+      type: object
+      required:
+        - order_id
+        - status
+        - total_cents
+        - currency
+        - created_at
+        - total_items_count
+        - items
+      properties:
+        order_id:
+          type: string
+          description: Unique order identifier
+          example: "ord_abc123"
+        status:
+          type: string
+          enum:
+            - pending
+            - confirmed
+            - shipped
+            - delivered
+            - cancelled
+            - returned
+          description: Current order status
+        total_cents:
+          type: integer
+          description: Order total in cents (avoids floating-point issues)
+          example: 4999
+        currency:
+          type: string
+          description: ISO 4217 currency code
+          example: "USD"
+        created_at:
+          type: string
+          format: date-time
+          description: Order creation timestamp (ISO 8601)
+          example: "2025-01-15T10:30:00Z"
+        total_items_count:
+          type: integer
+          minimum: 1
+          description: Total number of line items in the order (for "+N more" UI indicator)
+          example: 5
+        items:
+          type: array
+          maxItems: 3
+          description: First 3 items for preview. Full list available on order detail endpoint.
+          items:
+            $ref: "#/components/schemas/OrderItem"
+
+    OrderItem:
+      type: object
+      required:
+        - product_id
+        - product_name
+        - product_image_url
+        - unit_price_cents
+        - quantity
+      properties:
+        product_id:
+          type: string
+          description: Product identifier from the products shard
+          example: "prod_xyz"
+        product_name:
+          type: string
+          description: Product display name
+          example: "Wireless Headphones"
+        product_image_url:
+          type: string
+          format: uri
+          description: CDN URL for product thumbnail image
+          example: "https://cdn.example.com/products/xyz/thumb.webp"
+        unit_price_cents:
+          type: integer
+          description: Unit price in cents
+          example: 2499
+        quantity:
+          type: integer
+          minimum: 1
+          description: Quantity ordered
+          example: 2
+
+    Pagination:
+      type: object
+      required:
+        - page
+        - page_size
+        - total_orders
+        - total_pages
+      properties:
+        page:
+          type: integer
+          minimum: 1
+          description: Current page number
+          example: 1
+        page_size:
+          type: integer
+          minimum: 1
+          maximum: 50
+          description: Items per page
+          example: 20
+        total_orders:
+          type: integer
+          minimum: 0
+          description: Total number of orders for this user
+          example: 1250
+        total_pages:
+          type: integer
+          minimum: 0
+          description: Total number of pages
+          example: 63
