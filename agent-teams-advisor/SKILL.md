@@ -7,6 +7,8 @@ description: "Agent Teams Advisor: Evaluate whether a task is suitable for Claud
 
 Evaluate whether a task suits Agent Teams, recommend configurations, and provide operational guidance.
 
+**This skill is written for the team leader.** You are responsible for reading it, applying it, AND propagating it to your teammates.
+
 ## Core Workflow
 
 ### Step 1: Assess the Task
@@ -49,6 +51,31 @@ For detailed best practices on running Agent Teams effectively, read [references
 4. **Monitor for anti-patterns**: zombie meetings, groupthink, deadlocks
 5. **Set cost limits** before starting
 
+### Step 4 (MANDATORY): Require Every Teammate to Read This Skill
+
+**Why this is mandatory:** Your teammates have independent context windows. They do NOT automatically have access to this skill's knowledge. If you do not explicitly instruct them to read it, they will have no teamwork guidelines — leading to unstructured communication, wasted messages, and coordination failures.
+
+**What you must do:** When spawning teammates and writing your Constitution File, you MUST tell every agent that reading the agent-teams-advisor skill is **MANDATORY / REQUIRED** before they start any work. Frame it as: **"This is the team's collaboration guidebook — it teaches you how we communicate, negotiate, and coordinate. Reading it is not optional."**
+
+You must propagate this through two channels:
+
+#### Channel 1: Constitution File
+
+In your Constitution File (MISSION_CONTEXT.md), include a section that states:
+
+> **REQUIRED: Read the Team Collaboration Guide Before Starting Work.**
+> All team members MUST invoke the agent-teams-advisor skill (`skill: "agent-teams-advisor"`) and read `references/best-practices.md` BEFORE beginning any task. This is the team's operating manual — it teaches structured message formats, turn-taking rules, negotiation patterns, and anti-pattern detection. This is not optional.
+
+#### Channel 2: Spawn Prompts
+
+In every teammate's spawn prompt, include an early numbered step:
+
+> **STEP [N] (REQUIRED — BEFORE STARTING WORK):** Invoke the agent-teams-advisor skill (use the Skill tool with `skill: "agent-teams-advisor"`) and read `references/best-practices.md`. This is the team's collaboration guidebook. It teaches you structured message formats, turn-taking rules, and coordination best practices. You MUST read this before writing any code or tests.
+
+**Both channels are needed.** The spawn prompt forces immediate action; the Constitution File provides ongoing reference. Using only one has been tested and shown to be insufficient — agents skip or skim if the instruction appears in only one place.
+
+For detailed templates and rationale, see [references/skill-propagation-templates.md](references/skill-propagation-templates.md).
+
 ## Quick Decision Tree
 
 ```
@@ -65,6 +92,7 @@ Is the task a simple, single-file change?
 
 ## Reference Files
 
-- **[references/intro.md](references/intro.md)**: Agent Teams architecture, how it works, comparison with Subagents. Read when the user needs to understand what Agent Teams is.
+- **[references/best-practices.md](references/best-practices.md)**: Operational handbook — role assignment, communication protocols, environment setup, stop-loss strategies. The core reference that all team members should read.
+- **[references/skill-propagation-templates.md](references/skill-propagation-templates.md)**: Ready-to-use templates for Constitution File sections and spawn prompt snippets. Use these to implement Step 4.
 - **[references/best-scenarios.md](references/best-scenarios.md)**: Proven use cases, anti-patterns, benchmark data, and cost references. Read when evaluating whether a specific task fits Agent Teams.
-- **[references/best-practices.md](references/best-practices.md)**: Operational handbook — role assignment, communication protocols, environment setup, stop-loss strategies. Read when the user needs guidance on how to run Agent Teams effectively.
+- **[references/intro.md](references/intro.md)**: Agent Teams architecture, how it works, comparison with Subagents. Read when the user needs to understand what Agent Teams is.
