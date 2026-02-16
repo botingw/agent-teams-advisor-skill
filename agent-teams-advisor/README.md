@@ -16,6 +16,7 @@
 | `references/best-practices.md` | Operational handbook (roles, communication protocols, environment, stop-loss) |
 | `references/best-scenarios.md` | Best-fit scenarios, anti-patterns, benchmark and cost references |
 | `references/skill-propagation-templates.md` | Copy-paste templates for Constitution files and spawn prompts |
+| `DESIGN_NOTES.md` | Design rationale behind skill decisions (for maintainers, not consumed by agents) |
 
 ## When to Trigger This Skill
 

@@ -181,24 +181,73 @@ Running retrospectives after each Agent Teams session is critical for continuous
 
 These questions are designed to produce **actionable improvement signals**, not satisfaction scores:
 
-**Q1 — Friction Points (replaces "rate your performance 1-10"):**
+**Q1 — Friction Points:**
 > "In this session, at which points did you experience friction — wasted messages, unclear ownership, waiting without knowing why, or duplicated work? Describe each friction point and what would have prevented it."
 
-**Why**: A numeric score (8/10) tells you nothing actionable. Specific friction points can be directly converted into protocol improvements.
-
-**Q2 — Decision Points & Information Gaps (replaces "did you use tool X?"):**
+**Q2 — Decision Points & Information Gaps:**
 > "List every decision point where you had to choose between multiple approaches (architectural, communication, or implementation). For each, describe: (a) what you decided, (b) what information you used to decide, (c) whether any available tool or documentation helped, and (d) what information was missing that would have helped you decide faster."
 
-**Why**: This captures the information gaps in your current tools and documentation without biasing agents toward or against any specific tool.
-
-**Q3 — Reusable Patterns (replaces "how to improve the tool?"):**
+**Q3 — Reusable Patterns:**
 > "What did you learn in this session that would be useful for a DIFFERENT team working on a DIFFERENT task? Describe any communication patterns, decision frameworks, or workflow structures that you'd recommend generalizing."
 
-**Why**: Forces agents to distinguish domain-specific insights from generic ones. Only generic insights should feed back into shared skills and protocols.
+**Q4 — Skill Self-Assessment:**
+
+This question creates a feedback loop: each session's retrospective improves the agent-teams-advisor skill, which improves the next session. Ask each agent (and answer for yourself as leader):
+
+> "The agent-teams-advisor skill was available to the team during this session.
+>
+> (a) Did you use it? If yes, describe when and what it returned.
+>     If no, explain why — did you not need it, not notice it,
+>     or not understand when to use it?
+>
+> (b) If you used it: was the advice actionable? Did it change
+>     your decision or confirm what you already planned?
+>
+> (c) If you didn't use it: looking back at your decision points
+>     from Q2, is there any point where it COULD have helped?
+>     What would have triggered you to use it?
+>
+> (d) What would make this skill more useful to you?
+>     (Better trigger scenarios in the docs? Different output
+>     format? More specific advice for your role?)"
+
+### Classifying Insights
+
+When reviewing retrospective answers, label each insight with one of these categories:
+
+- **[GENERIC]** — Applicable to any Agent Teams task, unconditionally.
+  Example: "Machine-verifiable DoD prevents groupthink."
+- **[SITUATION: \<context\>]** — Useful but only in specific workflow types. Clearly state the context.
+  Examples: `[SITUATION: negotiation/debate workflows]`, `[SITUATION: parallel-then-converge workflows]`, `[SITUATION: cross-role API contract design]`
+- **[DOMAIN-SPECIFIC]** — Only relevant to this exact project type.
+  Example: "Include payload size budget for mobile API design."
+
+This labeling ensures that when feeding insights back into skills or protocols, you know exactly when each piece of advice applies and do not over-generalize.
+
+### Recommended Retrospective Output Structure
+
+Compile retrospective results into two separate documents:
+
+**1. Retrospective Record** (e.g., `PROJECT_RETROSPECTIVE.md`) — the full observational record:
+- **Session Summary** — One paragraph: what the team built, how many agents, key outcomes
+- **Friction Points** (from Q1) — Bullet list per agent, each with: what happened → root cause → suggested fix
+- **Decision Log** (from Q2) — For each decision: chosen approach, info used, info missing
+- **Reusable Patterns** (from Q3) — Each pattern with a `[GENERIC]` or `[SITUATION: X]` label
+- **Skill Assessment** (from Q4) — Per-agent summary: did they use it, why/why not, what would improve it
+
+**2. Skill Update Proposal** (separate document) — actionable improvements extracted from the retrospective:
+- Only includes items that should change the agent-teams-advisor skill or the Constitution File template
+- Each item tagged with its classification label
+- `[GENERIC]` insights → add directly
+- `[SITUATION: <context>]` insights → add with a clear "**Applies to:**" label so future readers know the scope
+- `[DOMAIN-SPECIFIC]` insights → do NOT add to the skill
+
+Separating the record from the proposal ensures the retrospective captures everything, while the proposal stays concise and reviewable.
 
 ### Feeding Results Back
-- **Generic insights** (communication patterns, turn-taking rules, leader behaviors) → update this skill's best practices
-- **Domain-specific insights** (API design patterns, DB optimization strategies) → update project-level documentation or domain-specific skills
+- **[GENERIC] insights** (communication patterns, turn-taking rules, leader behaviors) → update this skill's best practices
+- **[SITUATION] insights** (workflow-specific protocols) → update this skill with an explicit "**Applies to:**" label
+- **[DOMAIN-SPECIFIC] insights** (API design patterns, DB optimization strategies) → update project-level documentation only; do NOT add to the skill
 - **Protocol improvements** (better Constitution File structure, better DoD format) → update your team's Constitution File template
 
 ---
